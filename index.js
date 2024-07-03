@@ -52,6 +52,60 @@ app.delete('/courses/:id', (req, res) => {
     
     res.send(course);
 });
+function middleware(req, res, next) {
+    console.log('Logging...');
+    next();
+}
+app.use(middleware);
+
+function logger(req, res, next) {
+    console.log('IP:', req.ip);
+    console.log('Hostname:', req.hostname);
+    console.log('Date:', new Date().toISOString());
+    next();
+}
+
+app.put('/courses/:id', logger, (req, res) => {
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if (!course) return res.status(404).send('The course with the given ID was not found');
+    
+    if (!req.body.name) return res.status(400).send('Course name is required');
+    
+    course.name = req.body.name;
+    res.send(course);
+});
+
+app.delete('/courses/:id', logger, (req, res) => {
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if (!course) return res.status(404).send('The course with the given ID was not found');
+    
+    const index = courses.indexOf(course);
+    courses.splice(index, 1);
+    
+    res.send(course);
+});
+
+app.put('/courses/1', logger, (req, res) => {
+    const course = courses.find(c => c.id === 1);
+    if (!course) return res.status(404).send('The course with the given ID was not found');
+    
+    if (!req.body.name) return res.status(400).send('Course name is required');
+    
+    course.name = req.body.name;
+    res.send(course);
+});
+
+app.delete('/courses/2', logger, (req, res) => {
+    const course = courses.find(c => c.id === 2);
+    if (!course) return res.status(404).send('The course with the given ID was not found');
+    
+    const index = courses.indexOf(course);
+    courses.splice(index, 1);
+    
+    res.send(course);
+});
+
+
 
 app.listen(3001, () => {
     console.log('Listening on port 3001');
